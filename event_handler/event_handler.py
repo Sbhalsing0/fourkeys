@@ -39,20 +39,20 @@ def index():
     if source not in sources.AUTHORIZED_SOURCES:
         raise Exception(f"Source not authorized: {source}")
 
-    auth_source = sources.AUTHORIZED_SOURCES[source]
-    signature_sources = {**request.headers, **request.args}
-    signature = signature_sources.get(auth_source.signature, None)
+    #auth_source = sources.AUTHORIZED_SOURCES[source]
+    #signature_sources = {**request.headers, **request.args}
+    #signature = signature_sources.get(auth_source.signature, None)
     body = request.data
 
     # Verify the signature
-    verify_signature = auth_source.verification
-    if not verify_signature(signature, body):
-        raise Exception("Unverified Signature")
+    #verify_signature = auth_source.verification
+    #if not verify_signature(signature, body):
+    #    raise Exception("Unverified Signature")
 
     # Remove the Auth header so we do not publish it to Pub/Sub
     pubsub_headers = dict(request.headers)
-    if "Authorization" in pubsub_headers:
-        del pubsub_headers["Authorization"]
+    #if "Authorization" in pubsub_headers:
+    #    del pubsub_headers["Authorization"]
 
     # Publish to Pub/Sub
     publish_to_pubsub(source, body, pubsub_headers)

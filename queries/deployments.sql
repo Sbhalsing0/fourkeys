@@ -35,11 +35,23 @@ WITH deploys_cloudbuild_github_gitlab AS (# Cloud Build, Github, Gitlab pipeline
       WHERE event_type = "dev.tekton.event.pipelinerun.successful.v1" 
       AND metadata like "%gitrevision%") e, e.params as param
     ),
+    deploys_jenkins AS (# JenkinsCI pipelines
+      SELECT
+      source,
+      id AS deploy_id,
+      time_created,
+      JSON_EXTRACT_SCALAR(metadata, '$.mainCommit') AS main_commit,
+      ARRAY<string>[] AS additional_commits
+      FROM four_keys.events_raw
+      WHERE (source = "jenkins" AND event_type = "build" AND JSON_EXTRACT_SCALAR(metadata, '$.result') = "SUCCESS")
+    ),
     deploys AS (
       SELECT * FROM
       deploys_cloudbuild_github_gitlab
       UNION ALL
       SELECT * FROM deploys_tekton
+      UNION ALL
+      SELECT * FROM deploys_jenkins	      
     ),
     changes_raw AS (
       SELECT

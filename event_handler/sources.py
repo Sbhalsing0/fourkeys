@@ -91,6 +91,9 @@ def get_source(headers):
     if "GitHub-Hookshot" in headers.get("User-Agent", ""):
         return "github"
 
+    if "curl" in headers.get("User-Agent", ""):
+        return "jenkins" 
+
     return headers.get("User-Agent")
 
 
@@ -103,5 +106,8 @@ AUTHORIZED_SOURCES = {
         ),
     "tekton": EventSource(
         "tekton-secret", simple_token_verification
+        ),
+    "jenkins": EventSource(
+        "jenkins-secret", simple_token_verification
         )
 }

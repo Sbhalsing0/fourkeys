@@ -58,6 +58,19 @@ resource "google_bigquery_table" "view_deployments" {
   ]
 }
 
+resource "google_bigquery_table" "view_dailydeployments" {
+  dataset_id = google_bigquery_dataset.four_keys.dataset_id
+  table_id   = "dailydeployments"
+  view {
+    query          = file("../queries/dailydeployments.sql")
+    use_legacy_sql = false
+  }
+  deletion_protection = false
+  depends_on = [
+    google_bigquery_table.view_deployments
+  ]
+}
+
 resource "google_bigquery_table" "view_incidents" {
   dataset_id = google_bigquery_dataset.four_keys.dataset_id
   table_id   = "incidents"
@@ -69,6 +82,106 @@ resource "google_bigquery_table" "view_incidents" {
   depends_on = [
     google_bigquery_table.events_raw,
     google_bigquery_table.view_deployments
+  ]
+}
+
+resource "google_bigquery_table" "view_deployfrequency" {
+  dataset_id = google_bigquery_dataset.four_keys.dataset_id
+  table_id   = "deployfrequency"
+  view {
+    query          = file("../queries/deployfrequency.sql")
+    use_legacy_sql = false
+  }
+  deletion_protection = false
+  depends_on = [
+    google_bigquery_table.events_raw,
+    google_bigquery_table.view_deployments
+  ]
+}
+
+
+resource "google_bigquery_table" "view_medianleadtimetochange" {
+  dataset_id = google_bigquery_dataset.four_keys.dataset_id
+  table_id   = "medianleadtimetochange"
+  view {
+    query          = file("../queries/medianleadtimetochange.sql")
+    use_legacy_sql = false
+  }
+  deletion_protection = false
+  depends_on = [
+    google_bigquery_table.events_raw,
+    google_bigquery_table.view_deployments,
+    google_bigquery_table.view_changes
+  ]
+}
+
+resource "google_bigquery_table" "view_timetorestore" {
+  dataset_id = google_bigquery_dataset.four_keys.dataset_id
+  table_id   = "timetorestore"
+  view {
+    query          = file("../queries/timetorestore.sql")
+    use_legacy_sql = false
+  }
+  deletion_protection = false
+  depends_on = [
+    google_bigquery_table.view_incidents,
+  ]
+}
+
+resource "google_bigquery_table" "view_changefailurerate" {
+  dataset_id = google_bigquery_dataset.four_keys.dataset_id
+  table_id   = "changefailurerate"
+  view {
+    query          = file("../queries/changefailurerate.sql")
+    use_legacy_sql = false
+  }
+  deletion_protection = false
+  depends_on = [
+    google_bigquery_table.view_deployments,
+    google_bigquery_table.view_incidents
+  ]
+}
+
+resource "google_bigquery_table" "view_dailychangefailurerate" {
+  dataset_id = google_bigquery_dataset.four_keys.dataset_id
+  table_id   = "dailychangefailurerate"
+  view {
+    query          = file("../queries/dailychangefailurerate.sql")
+    use_legacy_sql = false
+  }
+  deletion_protection = false
+  depends_on = [
+    google_bigquery_table.view_deployments,
+    google_bigquery_table.view_incidents,
+    google_bigquery_table.view_changes
+  ]
+}
+
+resource "google_bigquery_table" "view_dailymediantimetorestore" {
+  dataset_id = google_bigquery_dataset.four_keys.dataset_id
+  table_id   = "dailymediantimetorestore"
+  view {
+    query          = file("../queries/dailymediantimetorestore.sql")
+    use_legacy_sql = false
+  }
+  deletion_protection = false
+  depends_on = [
+    google_bigquery_table.view_deployments,
+    google_bigquery_table.view_incidents
+  ]
+}
+
+resource "google_bigquery_table" "view_dailymedianleadtime" {
+  dataset_id = google_bigquery_dataset.four_keys.dataset_id
+  table_id   = "dailymedianleadtime"
+  view {
+    query          = file("../queries/dailymedianleadtime.sql")
+    use_legacy_sql = false
+  }
+  deletion_protection = false
+  depends_on = [
+    google_bigquery_table.view_deployments,
+    google_bigquery_table.view_changes
   ]
 }
 
